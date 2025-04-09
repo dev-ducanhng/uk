@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="icon_complian" x="0px" y="0px" width="35px" height="35px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#4A6491;}
+	.st1{fill-rule:evenodd;clip-rule:evenodd;fill:#4A6491;}
+</style>
+<g>
+	<path id="路径_2" class="st0" d="M8.4,3.6H26l-1.7,1.7H8.4c-1.9,0-3.5,1.6-3.5,3.5v18.1c0,1.9,1.6,3.5,3.5,3.5h17.8   c1.9,0,3.5-1.6,3.5-3.5V12.4l1.7-1.7v16.1c0,2.9-2.3,5.3-5.2,5.3c0,0,0,0-0.1,0H8.4c-2.9,0-5.3-2.3-5.3-5.2c0,0,0,0,0-0.1v-18   C3.1,5.9,5.5,3.6,8.4,3.6z"/>
+	<path id="路径_3" class="st1" d="M18.1,21.7L18.1,21.7l-5.3,1.5l1.4-5.3l0.1-0.1L18.1,21.7z"/>
+	<path id="路径_4" class="st1" d="M30.6,9.2l-12,11.9l-3.8-3.8L26.7,5.4L30.6,9.2z"/>
+	<path id="路径_5" class="st1" d="M30.8,3.2l2,2c0.5,0.5,0.5,1.3,0,1.9l-1.6,1.6l-3.9-3.9l1.6-1.6C29.4,2.8,30.2,2.8,30.8,3.2   L30.8,3.2z"/>
+</g>
+</svg>
