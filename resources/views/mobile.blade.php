@@ -2361,12 +2361,15 @@ Chuyển hết về tài khoản chính
 </div>
 </div>
 <div id="authModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-    <div style="background:#fff; margin:10% auto; padding:20px; width:400px; position:relative;">
-      <button onclick="$('#authModal').hide()">X</button>
+    <div style="background:#fff; margin:10% auto; padding:0px; width:400px; position:relative; ">
+      <button style="font-size: 20px; top:0px; right: 0px;" onclick="$('#authModal').hide()">X</button>
 
-      <div id="loginForm">
-        <h3>Đăng nhập</h3>
-        <form id="login-form">
+      <div id="loginForm" style="border-top-left-radius: 10px !important; ">
+        <div>
+        <h3 style="font-size: 0.95em;line-height: 48px; background-color: #eee; display: block; border-top-left-radius: 10px; border-top-right-radius: 10px;">Đăng nhập hội viên</h3>
+        </div>
+        
+        <form id="login-form" style="padding: 10px;">
         <div class="input-icon">
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="圖層_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 55 55" style="enable-background:new 0 0 55 55;" xml:space="preserve">
             <style type="text/css">.st0{fill:#45B5DA;}
@@ -2396,16 +2399,16 @@ Chuyển hết về tài khoản chính
           
           <span class="toggle-password" onclick="togglePassword()" id="toggleIcon">
           </span>
-          
+          <p onclick="toggleForm('forgot')" style="cursor:pointer; text-align: right; color: #337caa; font-size: 0.9em;">Quên mật khẩu?</p>
           <div style="text-align: center;" class="g-recaptcha" data-sitekey="{{env('RECAPTCHA_SITE_KEY') }}"></div>
           <div id="phone-confirmation" style="display: none;">
               <input style="width: 100%;" type="tel" name="phone" id="phone" placeholder="Xác nhận số điện thoại">
           </div>
           <br>
-          <p onclick="toggleForm('forgot')" style="cursor:pointer;">Quên mật khẩu</p>
+          
           <button type="submit">Đăng nhập</button>
         </form>
-        <p onclick="toggleForm('register')" style="cursor:pointer;">Chưa có tài khoản? Đăng ký</p>
+        <!-- <p onclick="toggleForm('register')" style="cursor:pointer;">Chưa có tài khoản? Đăng ký</p> -->
       </div>
 
       <div id="registerForm" style="display:none; padding: 20px;">
