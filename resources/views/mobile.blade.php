@@ -49,10 +49,10 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/Areas/Mobile/Content/Images/TouchIcon20220413/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/Areas/Mobile/Content/Images/TouchIcon20220413/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/Areas/Mobile/Content/Images/TouchIcon20220413/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/Areas/Mobile/Content/Images/TouchIcon20220413/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/Areas/Mobile/Content/Images/TouchIcon20220413/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/Areas/Mobile/Content/Images/TouchIcon20220413/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/Areas/Mobile/Content/Images/TouchIcon20220413/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://ku8338.net/Areas/Mobile/Content/Images/TouchIcon20220413/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://ku8338.net/Areas/Mobile/Content/Images/TouchIcon20220413/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="https://ku8338.net/Areas/Mobile/Content/Images/TouchIcon20220413/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://ku8338.net/Areas/Mobile/Content/Images/TouchIcon20220413/favicon-16x16.png">
     <title>KU Web</title>
     <!--網址加入主畫面捷徑Icon END-->
     <meta name="browsermode" content="application">
