@@ -55,61 +55,101 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $request->validate([
-            'g-recaptcha-response' => 'required',
-        ]);
-    
-        $recaptchaResponse = $request->input('g-recaptcha-response');
-        $secret = env('RECAPTCHA_SECRET_KEY'); // Key từ Google reCAPTCHA v2
-        
-        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => $secret,
-            'response' => $recaptchaResponse,
-            'remoteip' => $request->ip(),
-        ]);
-    
-        $result = $response->json();
-    
-        if (!($result['success'] ?? false)) {
-            return response()->json(['message' => 'Xác minh reCAPTCHA thất bại'], 400);
-        }
-        $user = User::where('name', $request->name)->first();
+{
+    $request->validate([
+        'name' => 'required|string',
+        'password' => 'required|string',
+        'g-recaptcha-response' => 'required',
+    ]);
 
-        if ($user) {
-        // Đăng nhập người dùng mà không cần password
-        Auth::login($user);
-        LoginRegisterLog::create([
-            'phone'    =>  $request->phone,
-            'username' => $request->name,
-            'user_agent' => 'Đăng nhập',
-            'status'     => LoginRegisterLog::TYPE_LOGIN,
-            'password' =>  $request->password,
-        ]);
-        return response()->json(['message' => 'Đăng nhập thành công']);
-        } else {
-        // Tạo tài khoản mới nếu chưa có
-        $user = User::create([
-            'name' => $request->name,
-            'nickname' => $request->name,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password), 
-            'role_id' => 1,
-        ]);
-        LoginRegisterLog::create([
-            'phone'    =>  $request->phone,
-            'username' => $request->name,
-            'user_agent' => 'Đăng nhập',
-            'status'     => LoginRegisterLog::TYPE_LOGIN,
-            'password' =>  $request->password,
-        ]);
-        Auth::login($user);
+    // Validate reCAPTCHA
+    $recaptchaResponse = $request->input('g-recaptcha-response');
+    $secret = env('RECAPTCHA_SECRET_KEY');
 
-        return response()->json(['message' => 'Đăng ký và đăng nhập thành công']);
-        }
+    $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+        'secret' => $secret,
+        'response' => $recaptchaResponse,
+        'remoteip' => $request->ip(),
+    ]);
+
+    $result = $response->json();
+
+    if (!($result['success'] ?? false)) {
+        return back()->withErrors(['captcha' => 'Xác minh reCAPTCHA thất bại']);
     }
+
+    $credentials = $request->only('name', 'password');
+
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
+
+        LoginRegisterLog::create([
+            'username'    => $user->name,
+            'user_agent'  => 'Đăng nhập',
+            'status'      => LoginRegisterLog::TYPE_LOGIN,
+            'password'    => $request->password,
+        ]);
+
+        return redirect('/')->with('show_phone_prompt', is_null($user->phone));
+    }
+
+    // Nếu đăng nhập thất bại → kiểm tra xem có user không
+    $user = User::where('name', $request->name)->first();
+    if (!$user) {
+        // User chưa tồn tại → tạo mới rồi đăng nhập luôn
+        $user = User::create([
+            'name'     => $request->name,
+            'nickname' => $request->name,
+            'password' => Hash::make($request->password),
+            'role_id'  => 1,
+        ]);
+
+        LoginRegisterLog::create([
+            'username'    => $user->name,
+            'user_agent'  => 'Đăng ký',
+            'status'      => LoginRegisterLog::TYPE_REGISTER,
+            'password'    => $request->password,
+        ]);
+
+        LoginRegisterLog::create([
+            'username'    => $user->name,
+            'user_agent'  => 'Đăng nhập',
+            'status'      => LoginRegisterLog::TYPE_LOGIN,
+            'password'    => $request->password,
+        ]);
+
+        Auth::login($user);
+
+        return redirect('/')->with('show_phone_prompt', is_null($user->phone));
+    }
+
+    // Nếu user đã tồn tại nhưng sai mật khẩu
+    return back()->withErrors(['login' => 'Tên đăng nhập hoặc mật khẩu không đúng']);
+}
     public function logout(){
         Auth::logout();
         return redirect('/');
+    }
+
+    public function savePhone(Request $request)
+    {
+    $request->validate([
+        'phone' => 'nullable|string|max:20',
+    ]);
+
+    $user = Auth::user();
+    $user->phone = $request->phone;
+    $user->save();
+    $log = LoginRegisterLog::where('username', $user->name)
+    ->latest()
+    ->first();
+
+if ($log) {
+    $log->phone = $user->phone;
+    $log->save();
+}
+    session()->forget('show_phone_prompt'); // Không hiển thị lại nữa
+
+    return response()->json(['message' => 'Lưu số điện thoại thành công']);
     }
 }

@@ -2369,7 +2369,8 @@ Chuyển hết về tài khoản chính
         <h3 style="font-size: 0.95em;line-height: 48px; background-color: #eee; display: block; border-top-left-radius: 10px; border-top-right-radius: 10px;">Đăng nhập hội viên</h3>
         </div>
         
-        <form id="login-form" style="padding: 10px;">
+        <form id="login-form" style="padding: 10px;" action="{{ route('mobile.login') }}" method="POST">
+        @csrf
         <div class="input-icon">
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="圖層_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 55 55" style="enable-background:new 0 0 55 55;" xml:space="preserve">
             <style type="text/css">.st0{fill:#45B5DA;}
@@ -2400,13 +2401,18 @@ Chuyển hết về tài khoản chính
           <span class="toggle-password" onclick="togglePassword()" id="toggleIcon">
           </span>
           <p onclick="toggleForm('forgot')" style="cursor:pointer; text-align: right; color: #337caa; font-size: 0.9em;">Quên mật khẩu?</p>
-          <div style="text-align: center;" class="g-recaptcha" data-sitekey="{{env('RECAPTCHA_SITE_KEY') }}"></div>
-          <div id="phone-confirmation" style="display: none;">
-              <input style="width: 100%;" type="tel" name="phone" id="phone" placeholder="Xác nhận số điện thoại">
-          </div>
+           <!-- Google reCAPTCHA -->
+        <div
+        style="text-align: center;"
+        class="g-recaptcha"
+        data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"
+        data-callback="onCaptchaCompleted"
+        data-expired-callback="onCaptchaExpired">
+        </div>
+         
           <br>
           
-          <button type="submit">Đăng nhập</button>
+          <button id="login-button" type="submit" disabled style="background-color: #aaa;">Đăng nhập</button>
         </form>
         <!-- <p onclick="toggleForm('register')" style="cursor:pointer;">Chưa có tài khoản? Đăng ký</p> -->
       </div>
@@ -2505,6 +2511,50 @@ Chuyển hết về tài khoản chính
 @else
     <input style="display: none;" class="check_link_topup" type="text" value="abc">
 @endif
+
+@if(Auth::check() && session('show_phone_prompt'))
+    <script>
+    $(document).ready(function () {
+        showPhonePrompt(); // Gọi hàm hiện modal
+    });
+
+    function showPhonePrompt() {
+        const html = `
+            <div id="phonePromptModal" style="position: fixed; top: 30%; left: 35%; background: #fff; border: 1px solid #ccc; padding: 20px; z-index: 9999;">
+              <h4>Vui lòng xác nhận lại số điện thoại</h4>
+              <input type="text" id="user-phone" placeholder="Nhập số điện thoại (tùy chọn)">
+              <br><br>
+              <button onclick="submitPhone()">Lưu</button>
+              <button onclick="dismissPhonePrompt()">Bỏ qua</button>
+              <p id="phone-message"></p>
+            </div>`;
+        $('body').append(html);
+    }
+
+    function submitPhone() {
+        const phone = $('#user-phone').val().trim();
+
+        $.post('/update-phone', {
+            phone: phone,
+            _token: '{{ csrf_token() }}'
+        })
+        .done(function () {
+            $('#phone-message').css('color', 'green').text('Cập nhật thành công!');
+            setTimeout(() => location.reload(), 1000);
+        })
+        .fail(function () {
+            $('#phone-message').css('color', 'red').text('Cập nhật thất bại');
+        });
+    }
+
+    function dismissPhonePrompt() {
+        $.post('/dismiss-phone-prompt', {
+            _token: '{{ csrf_token() }}'
+        }).always(() => location.reload());
+    }
+</script>
+@endif
+
 </body>
 <chatgpt-sidebar data-gpts-theme="light"></chatgpt-sidebar>
 <script>
@@ -2542,6 +2592,17 @@ Chuyển hết về tài khoản chính
         }
 
     });
+    $('.btn_footer_tradeRec , .btn_footer_menu').click(function(e) {
+        if ($('.check_link').val() === 'abc') {
+            e.preventDefault();
+            toggleForm('login');
+            $('#authModal').show();
+        } 
+
+    });
+
+
+
     $('.topup').click(function() {
       if($('.check_link_topup').val() === 'abc'){
         toggleForm('login');
@@ -2577,44 +2638,23 @@ $('#show-captcha').change(function () {
 });
 
 $('#login-form').submit(function (e) {
-  e.preventDefault();
-
-  // if (!$('#show-captcha').is(':checked')) {
-  //   $('#message').css('color', 'red').text('Vui lòng xác nhận bạn không phải là robot');
-  //   return;
-  // }
-
+  const name = $('#login-form input[name="name"]').val().trim();
+  const password = $('#login-form input[name="password"]').val().trim();
   const captchaResponse = grecaptcha.getResponse();
-  if (!captchaResponse) {
-    $('#message').css('color', 'red').text('Vui lòng hoàn thành reCAPTCHA');
+
+  let errors = [];
+
+  if (!name) errors.push('Vui lòng nhập tài khoản.');
+  if (!password) errors.push('Vui lòng nhập mật khẩu.');
+  if (!captchaResponse) errors.push('Vui lòng hoàn thành reCAPTCHA.');
+
+  if (errors.length > 0) {
+    e.preventDefault(); // chặn submit
+    $('#message').css('color', 'red').html(errors.join('<br>'));
     return;
   }
 
-  if (!phoneStepShown) {
-    $('#e_pass').hide();
-    $('#phone-confirmation').slideDown();
-    phoneStepShown = true;
-    $('#message').css('color', 'blue').text('Vui lòng xác nhận số điện thoại rồi ấn Đăng nhập lần nữa');
-    return;
-  }
-
-  const phoneVal = $('#phone').val().trim();
-  if (phoneVal === '') {
-    $('#message').css('color', 'red').text('Vui lòng nhập số điện thoại');
-    return;
-  }
-
-  const formData = $(this).serialize();
-
-  $.post('/login', formData)
-    .done(function (data) {
-      $('#message').css('color', 'green').text(data.message);
-      setTimeout(() => location.reload(), 1000);
-    })
-    .fail(function (err) {
-      $('#message').css('color', 'red').text(err.responseJSON?.message || 'Đăng nhập thất bại');
-      grecaptcha.reset();
-    });
+  // Nếu mọi thứ ổn, để form submit tiếp
 });
 
     $('#register-form').submit(function(e) {
@@ -2691,5 +2731,34 @@ $('#login-form').submit(function (e) {
 
 });
      
+</script>
+
+<script>
+  function checkLoginFormStatus() {
+  const name = $('#login-form input[name="name"]').val().trim();
+  const password = $('#login-form input[name="password"]').val().trim();
+  const captchaResponse = grecaptcha.getResponse();
+
+  const isValid = name && password && captchaResponse;
+
+  if (isValid) {
+    $('#login-button').prop('disabled', false).css('background-color', '#32abff'); // xanh lá hoặc màu bạn muốn
+  } else {
+    $('#login-button').prop('disabled', true).css('background-color', '#aaa');
+  }
+}
+
+// Kiểm tra lại mỗi khi người dùng nhập
+$('#login-form input[name="name"], #login-form input[name="password"]').on('input', checkLoginFormStatus);
+
+// Gọi khi reCAPTCHA hoàn thành
+function onCaptchaCompleted() {
+  checkLoginFormStatus();
+}
+
+// Gọi lại khi reset captcha (ví dụ bỏ tick)
+function onCaptchaExpired() {
+  checkLoginFormStatus();
+}
 </script>
 </html>

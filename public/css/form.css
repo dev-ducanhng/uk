@@ -272,3 +272,69 @@
 .none_activate {
   display: none;
 }
+
+#phonePromptModal {
+  position: fixed;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 30px 40px;
+  z-index: 9999;
+  max-width: 400px;
+  width: 90%;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+#phonePromptModal h4 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+#phonePromptModal input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  margin-bottom: 20px;
+}
+
+#phonePromptModal button {
+  padding: 10px 20px;
+  font-size: 14px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#phonePromptModal button:first-of-type {
+  background-color: #32abff;
+  color: #fff;
+}
+
+#phonePromptModal button:first-of-type:hover {
+  background-color: #218838;
+}
+
+#phonePromptModal button:last-of-type {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+#phonePromptModal button:last-of-type:hover {
+  background-color: #5a6268;
+}
+
+#phone-message {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #dc3545; /* Red for errors */
+}

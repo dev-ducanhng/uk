@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\MobileController;
+use App\Models\LoginRegisterLog;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +25,17 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::middleware('auth')->group(function () {
+    Route::post('/update-phone', [AuthController::class, 'savePhone']);
+    Route::post('/dismiss-phone-prompt', function () {
+        session()->forget('show_phone_prompt');
+        return response()->json(['message' => 'dismissed']);
+    });
+});
 
+Route::post('mobile/login', [MobileController::class, 'login'])->name('mobile.login');
 Route::get('/mobile', [MobileController::class, 'index'])->name('mobileHome');
 Route::get('/mobile/serviceCenter', [MobileController::class, 'serviceCenter'])->name('service');
 Route::get('/mobile/transaction', [MobileController::class, 'transaction'])->name('transaction');
@@ -45,5 +56,4 @@ Route::prefix('/admin')->middleware('auth')->group(function () {
     Route::post('/set-link-301', [Admincontroller::class, 'postSetLinkRedirect'])->name('admin.postSetLinkRedirect');
     Route::get('/set-link-topup', [Admincontroller::class, 'setLinkTopup'])->name('admin.setLinkTopup');
     Route::post('/set-link-topup', [Admincontroller::class, 'postSetLinkTopup'])->name('admin.postSetLinkTopup');
-    
 });

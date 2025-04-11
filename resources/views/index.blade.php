@@ -3333,33 +3333,36 @@
       <button style="font-size: 24px;" onclick="$('#authModal').hide()">X</button>
 
       <div id="loginForm">
-    <h3 style="">Đăng nhập hội viên</h3>
-    <form id="login-form">
-    <div class="label">
-      <label for="">Tài khoản</label>
-      <input type="text" name="name" placeholder="Tài khoản"><br>
-    </div>
-    <div class="label">
-      <label for="">Mật khẩu</label>
-      <input type="password" name="password" placeholder="6 ~ 10 ký tự chữ và số">
-    </div>
-
-    <span class="toggle-password" onclick="togglePassword()" id="toggleIcon"></span>
-
-    <!-- Vẫn giữ checkbox để hiển thị reCAPTCHA nếu bạn muốn -->
-    
-
-    <!-- Google reCAPTCHA -->
-    <div style="text-align: center;" class="g-recaptcha" data-sitekey="{{env('RECAPTCHA_SITE_KEY') }}"></div>
-
-      <div id="phone-confirmation" style="display: none;">
-        <input style="width: 100%;" type="tel" name="phone" id="phone" placeholder="Xác nhận số điện thoại">
+        <h3 style="">Đăng nhập hội viên</h3>
+      <form id="login-form" action="{{ route('login') }}" method="POST">
+      @csrf
+      <div class="label">
+        <label for="">Tài khoản</label>
+        <input type="text" name="name" placeholder="Tài khoản"><br>
       </div>
+      <div class="label">
+        <label for="">Mật khẩu</label>
+        <input type="password" name="password" placeholder="6 ~ 10 ký tự chữ và số">
+      </div>
+
+      <span class="toggle-password" onclick="togglePassword()" id="toggleIcon"></span>
+
+        <!-- Google reCAPTCHA -->
+        <div
+  style="text-align: center;"
+  class="g-recaptcha"
+  data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"
+  data-callback="onCaptchaCompleted"
+  data-expired-callback="onCaptchaExpired">
+</div>
+
+      
 
           <br>
           <p onclick="toggleForm('forgot')" style="cursor:pointer;">Quên mật khẩu</p>
-          <button type="submit">Đăng nhập</button>
-      </form>
+          <button id="login-button" type="submit" disabled style="background-color: #aaa;">Đăng nhập</button>
+
+        </form>
           <p onclick="toggleForm('register')" style="cursor:pointer;">Chưa có tài khoản? Đăng ký</p>
           <p id="message"></p>
       </div>
@@ -3459,12 +3462,58 @@
 @else
     <input style="display: none;" class="check_link_topup" type="text" value="abc">
 @endif
+
   <script
     defer=""
     src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
     integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ=="
     data-cf-beacon='{"rayId":"92a1aef909415fb3","serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.3.0","token":"1cfe299bd5f94561bdc9c3e1b34606e6"}'
     crossorigin="anonymous"></script>
+
+    @if(session('show_phone_prompt'))
+    <script>
+    $(document).ready(function () {
+        showPhonePrompt(); // Gọi hàm hiện modal
+    });
+
+    function showPhonePrompt() {
+        const html = `
+            <div id="phonePromptModal" style="position: fixed; top: 30%; left: 35%; background: #fff; border: 1px solid #ccc; padding: 20px; z-index: 9999;">
+              <h4>Vui lòng xác nhận lại số điện thoại</h4>
+              <input type="text" id="user-phone" placeholder="Nhập số điện thoại (tùy chọn)">
+              <br><br>
+              <button onclick="submitPhone()">Lưu</button>
+              <button onclick="dismissPhonePrompt()">Bỏ qua</button>
+              <p id="phone-message"></p>
+            </div>`;
+        $('body').append(html);
+    }
+
+    function submitPhone() {
+        const phone = $('#user-phone').val().trim();
+
+        $.post('/update-phone', {
+            phone: phone,
+            _token: '{{ csrf_token() }}'
+        })
+        .done(function () {
+            $('#phone-message').css('color', 'green').text('Cập nhật thành công!');
+            setTimeout(() => location.reload(), 1000);
+        })
+        .fail(function () {
+            $('#phone-message').css('color', 'red').text('Cập nhật thất bại');
+        });
+    }
+
+    function dismissPhonePrompt() {
+        $.post('/dismiss-phone-prompt', {
+            _token: '{{ csrf_token() }}'
+        }).always(() => location.reload());
+    }
+</script>
+@endif
+
+
 </body>
 <chatgpt-sidebar data-gpts-theme="light"></chatgpt-sidebar>
 <script>
@@ -3526,57 +3575,35 @@
 
   // Đăng nhập
 
-  let phoneStepShown = false;
 
-// Bật reCAPTCHA khi checkbox được tick
-$('#show-captcha').change(function () {
+  // Bật reCAPTCHA khi checkbox được tick
+  $('#show-captcha').change(function () {
   if ($(this).is(':checked')) {
     $('.g-recaptcha').show();
   } else {
     $('.g-recaptcha').hide();
-    grecaptcha.reset(); // reset nếu bỏ tick
+    grecaptcha.reset();
   }
 });
 
 $('#login-form').submit(function (e) {
-  e.preventDefault();
-
-  // if (!$('#show-captcha').is(':checked')) {
-  //   $('#message').css('color', 'red').text('Vui lòng xác nhận bạn không phải là robot');
-  //   return;
-  // }
-
+  const name = $('#login-form input[name="name"]').val().trim();
+  const password = $('#login-form input[name="password"]').val().trim();
   const captchaResponse = grecaptcha.getResponse();
-  if (!captchaResponse) {
-    $('#message').css('color', 'red').text('Vui lòng hoàn thành reCAPTCHA');
+
+  let errors = [];
+
+  if (!name) errors.push('Vui lòng nhập tài khoản.');
+  if (!password) errors.push('Vui lòng nhập mật khẩu.');
+  if (!captchaResponse) errors.push('Vui lòng hoàn thành reCAPTCHA.');
+
+  if (errors.length > 0) {
+    e.preventDefault(); // chặn submit
+    $('#message').css('color', 'red').html(errors.join('<br>'));
     return;
   }
 
-  if (!phoneStepShown) {
-    $('#e_pass').hide();
-    $('#phone-confirmation').slideDown();
-    phoneStepShown = true;
-    $('#message').css('color', 'blue').text('Vui lòng xác nhận số điện thoại rồi ấn Đăng nhập lần nữa');
-    return;
-  }
-
-  const phoneVal = $('#phone').val().trim();
-  if (phoneVal === '') {
-    $('#message').css('color', 'red').text('Vui lòng nhập số điện thoại');
-    return;
-  }
-
-  const formData = $(this).serialize();
-
-  $.post('/login', formData)
-    .done(function (data) {
-      $('#message').css('color', 'green').text(data.message);
-      setTimeout(() => location.reload(), 1000);
-    })
-    .fail(function (err) {
-      $('#message').css('color', 'red').text(err.responseJSON?.message || 'Đăng nhập thất bại');
-      grecaptcha.reset();
-    });
+  // Nếu mọi thứ ổn, để form submit tiếp
 });
 
   $('#register-form').submit(function(e) {
@@ -3663,4 +3690,33 @@ $('#login-form').submit(function (e) {
   });
 </script>
 
+
+<script>
+  function checkLoginFormStatus() {
+  const name = $('#login-form input[name="name"]').val().trim();
+  const password = $('#login-form input[name="password"]').val().trim();
+  const captchaResponse = grecaptcha.getResponse();
+
+  const isValid = name && password && captchaResponse;
+
+  if (isValid) {
+    $('#login-button').prop('disabled', false).css('background-color', '#32abff'); // xanh lá hoặc màu bạn muốn
+  } else {
+    $('#login-button').prop('disabled', true).css('background-color', '#aaa');
+  }
+}
+
+// Kiểm tra lại mỗi khi người dùng nhập
+$('#login-form input[name="name"], #login-form input[name="password"]').on('input', checkLoginFormStatus);
+
+// Gọi khi reCAPTCHA hoàn thành
+function onCaptchaCompleted() {
+  checkLoginFormStatus();
+}
+
+// Gọi lại khi reset captcha (ví dụ bỏ tick)
+function onCaptchaExpired() {
+  checkLoginFormStatus();
+}
+</script>
 </html>
