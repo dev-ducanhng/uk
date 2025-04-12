@@ -2641,14 +2641,14 @@ Chuyển hết về tài khoản chính
     let phoneStepShown = false;
 
 // Bật reCAPTCHA khi checkbox được tick
-$('#show-captcha').change(function () {
-  if ($(this).is(':checked')) {
-    $('#captcha').show(); 
-  } else {
-    $('#captcha').hide();
-    // Không cần reset như grecaptcha.reset(), vì GeeTest không hỗ trợ kiểu này
-  }
-});
+// $('#show-captcha').change(function () {
+//   if ($(this).is(':checked')) {
+//     $('#captcha').show(); 
+//   } else {
+//     $('#captcha').hide();
+//     // Không cần reset như grecaptcha.reset(), vì GeeTest không hỗ trợ kiểu này
+//   }
+// });
 
 $('#login-form').submit(function(e) {
     const name = $('#login-form input[name="name"]').val().trim();

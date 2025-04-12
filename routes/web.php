@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
         return response()->json(['message' => 'dismissed']);
     });
 });
-
+Route::get('/recapcha', [HomeController::class, 'recapcha']);
 Route::post('mobile/login', [MobileController::class, 'login'])->name('mobile.login');
 Route::get('/mobile', [MobileController::class, 'index'])->name('mobileHome');
 Route::get('/mobile/serviceCenter', [MobileController::class, 'serviceCenter'])->name('service');

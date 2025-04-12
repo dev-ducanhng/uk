@@ -50,7 +50,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script defer="defer" src="/static/js/main.9abb08d2.js"></script>
   <script src="{{ asset('js/main.9abb08d2.js') }}"></script>
-  <script src="{{ asset('js/recapcha.js') }}" async defer></script>
+  <script src="{{ asset('js/recapcha.js') }}" ></script>
 
   <!-- <script defer="defer" src="/static/js/881.eb58a5b3.chunk.js"></script> -->
   <!-- <link href="/static/css/main.be51b521.css" rel="stylesheet" /> -->
