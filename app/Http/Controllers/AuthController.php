@@ -59,24 +59,28 @@ class AuthController extends Controller
     $request->validate([
         'name' => 'required|string',
         'password' => 'required|string',
-        'g-recaptcha-response' => 'required',
+        'lot_number' => 'required',
+        'captcha_output' => 'required',
+        'pass_token' => 'required',
+        'gen_time' => 'required',
     ]);
+    
+    $geetestPayload = [
+        'lot_number' => $request->lot_number,
+        'captcha_output' => $request->captcha_output,
+        'pass_token' => $request->pass_token,
+        'gen_time' => $request->gen_time,
+        'captcha_id' => env('GEETEST_CAPTCHA_ID'),
+        'api_key' => env('GEETEST_API_KEY'),
+    ];
 
-    // Validate reCAPTCHA
-    $recaptchaResponse = $request->input('g-recaptcha-response');
-    $secret = env('RECAPTCHA_SECRET_KEY');
+    $response = Http::asJson()->post('https://gcaptcha4.geetest.com/validate', $geetestPayload);
 
-    $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-        'secret' => $secret,
-        'response' => $recaptchaResponse,
-        'remoteip' => $request->ip(),
-    ]);
+$result = $response->json();
 
-    $result = $response->json();
-
-    if (!($result['success'] ?? false)) {
-        return back()->withErrors(['captcha' => 'Xác minh reCAPTCHA thất bại']);
-    }
+if (!($result['result'] ?? false)) {
+    return back()->withErrors(['captcha' => 'Xác minh CAPTCHA thất bại']);
+}
 
     $credentials = $request->only('name', 'password');
 

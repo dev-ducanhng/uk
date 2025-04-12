@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\Admincontroller;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GeetestController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LinkController;
@@ -43,6 +44,8 @@ Route::get('/mobile/membercenter', [MobileController::class, 'memberCenter'])->n
 
 Route::get('/link-301', [LinkController::class, 'redirect'])->name('link301');
 Route::get('/link-topup', [LinkController::class, 'redirectTopup'])->name('linkTopup');
+Route::get('/captcha/init', [GeetestController::class, 'initCaptcha']);
+Route::post('/captcha/verify', [GeetestController::class, 'verify']);
 
 Route::get('/admin/login', [Admincontroller::class, 'login'])->name('admin.login');
 Route::post('/admin/login', [Admincontroller::class, 'loginSubmit'])->name('admin.login.submit');

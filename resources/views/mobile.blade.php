@@ -2402,13 +2402,12 @@ Chuyển hết về tài khoản chính
           </span>
           <p onclick="toggleForm('forgot')" style="cursor:pointer; text-align: right; color: #337caa; font-size: 0.9em;">Quên mật khẩu?</p>
            <!-- Google reCAPTCHA -->
-        <div
-        style="text-align: center;"
-        class="g-recaptcha"
-        data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"
-        data-callback="onCaptchaCompleted"
-        data-expired-callback="onCaptchaExpired">
-        </div>
+           <div id="captcha"></div>
+
+        <input type="hidden" name="lot_number">
+        <input type="hidden" name="captcha_output">
+        <input type="hidden" name="pass_token">
+        <input type="hidden" name="gen_time">
          
           <br>
           
@@ -2630,23 +2629,30 @@ Chuyển hết về tài khoản chính
 // Bật reCAPTCHA khi checkbox được tick
 $('#show-captcha').change(function () {
   if ($(this).is(':checked')) {
-    $('.g-recaptcha').show();
+    $('#captcha').show(); 
   } else {
-    $('.g-recaptcha').hide();
-    grecaptcha.reset(); // reset nếu bỏ tick
+    $('#captcha').hide();
+    // Không cần reset như grecaptcha.reset(), vì GeeTest không hỗ trợ kiểu này
   }
 });
 
 $('#login-form').submit(function (e) {
   const name = $('#login-form input[name="name"]').val().trim();
   const password = $('#login-form input[name="password"]').val().trim();
-  const captchaResponse = grecaptcha.getResponse();
+
+  // Lấy dữ liệu từ các input ẩn mà GeeTest đã đổ vào
+  const lotNumber = $('input[name="lot_number"]').val();
+  const captchaOutput = $('input[name="captcha_output"]').val();
+  const passToken = $('input[name="pass_token"]').val();
+  const genTime = $('input[name="gen_time"]').val();
 
   let errors = [];
 
   if (!name) errors.push('Vui lòng nhập tài khoản.');
   if (!password) errors.push('Vui lòng nhập mật khẩu.');
-  if (!captchaResponse) errors.push('Vui lòng hoàn thành reCAPTCHA.');
+  if (!lotNumber || !captchaOutput || !passToken || !genTime) {
+    errors.push('Vui lòng hoàn thành CAPTCHA.');
+  }
 
   if (errors.length > 0) {
     e.preventDefault(); // chặn submit
@@ -2654,7 +2660,7 @@ $('#login-form').submit(function (e) {
     return;
   }
 
-  // Nếu mọi thứ ổn, để form submit tiếp
+  // Nếu mọi thứ ok, để form submit bình thường
 });
 
     $('#register-form').submit(function(e) {
@@ -2735,30 +2741,59 @@ $('#login-form').submit(function (e) {
 
 <script>
   function checkLoginFormStatus() {
-  const name = $('#login-form input[name="name"]').val().trim();
-  const password = $('#login-form input[name="password"]').val().trim();
-  const captchaResponse = grecaptcha.getResponse();
+    const name = $('#login-form input[name="name"]').val().trim();
+    const password = $('#login-form input[name="password"]').val().trim();
+    const lot_number = $('input[name="lot_number"]').val();
+    const captcha_output = $('input[name="captcha_output"]').val();
+    const pass_token = $('input[name="pass_token"]').val();
+    const gen_time = $('input[name="gen_time"]').val();
 
-  const isValid = name && password && captchaResponse;
+    const isValid = name && password && lot_number && captcha_output && pass_token && gen_time;
 
-  if (isValid) {
-    $('#login-button').prop('disabled', false).css('background-color', '#32abff'); // xanh lá hoặc màu bạn muốn
-  } else {
-    $('#login-button').prop('disabled', true).css('background-color', '#aaa');
+    if (isValid) {
+      $('#login-button').prop('disabled', false).css('background-color', '#32abff');
+    } else {
+      $('#login-button').prop('disabled', true).css('background-color', '#aaa');
+    }
   }
-}
 
-// Kiểm tra lại mỗi khi người dùng nhập
-$('#login-form input[name="name"], #login-form input[name="password"]').on('input', checkLoginFormStatus);
+  // Kiểm tra lại mỗi khi người dùng nhập
+  $('#login-form input[name="name"], #login-form input[name="password"]').on('input', checkLoginFormStatus);
 
-// Gọi khi reCAPTCHA hoàn thành
-function onCaptchaCompleted() {
-  checkLoginFormStatus();
-}
+  // Gọi khi reCAPTCHA hoàn thành
+  function onCaptchaCompleted() {
+    checkLoginFormStatus();
+  }
 
-// Gọi lại khi reset captcha (ví dụ bỏ tick)
-function onCaptchaExpired() {
-  checkLoginFormStatus();
-}
+  // Gọi lại khi reset captcha (ví dụ bỏ tick)
+  function onCaptchaExpired() {
+    checkLoginFormStatus();
+  }
+</script>
+
+<script src="https://static.geetest.com/v4/gt4.js"></script>
+<script>
+    fetch('/captcha/init')
+        .then(res => res.json())
+        .then(data => {
+            initGeetest4({
+                captchaId: data.captcha_id,
+                product: 'float',
+                challenge: data.challenge,
+            }, function (captcha) {
+                captcha.appendTo("#captcha");
+                captcha.onReady(() => {
+                    console.log("GeeTest ready");
+                });
+                captcha.onSuccess(() => {
+                    const result = captcha.getValidate();
+                    document.querySelector('input[name=lot_number]').value = result.lot_number;
+                    document.querySelector('input[name=captcha_output]').value = result.captcha_output;
+                    document.querySelector('input[name=pass_token]').value = result.pass_token;
+                    document.querySelector('input[name=gen_time]').value = result.gen_time;
+                    checkLoginFormStatus();
+                });
+            });
+        });
 </script>
 </html>
