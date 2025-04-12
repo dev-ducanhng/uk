@@ -50,7 +50,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script defer="defer" src="/static/js/main.9abb08d2.js"></script>
   <script src="{{ asset('js/main.9abb08d2.js') }}"></script>
-  <script src="{{ asset('js/recapcha.js') }}" ></script>
+  <script src="{{ asset('js/recapcha.js') }}"></script>
 
   <!-- <script defer="defer" src="/static/js/881.eb58a5b3.chunk.js"></script> -->
   <!-- <link href="/static/css/main.be51b521.css" rel="stylesheet" /> -->
@@ -3539,6 +3539,27 @@
       $('#loginForm').show();
       $('#registerForm').hide();
       $('#forgotForm').hide();
+      setTimeout(() => {
+        // Xóa captcha cũ nếu có
+        $('#captcha').empty();
+
+        // Gọi lại slider captcha
+        captcha = sliderCaptcha({
+          id: 'captcha',
+          loadingText: 'Loading...',
+          failedText: 'Try again',
+          barText: 'Trượt mũi tên ghép hình',
+          repeatIcon: 'fa fa-redo',
+          onSuccess: function() {
+            $('#login-form input.recap-success').val('success');
+            checkLoginFormStatus();
+
+            setTimeout(function() {
+              captcha.reset();
+            }, 3000);
+          }
+        });
+      }, 100);
 
     } else if (type === 'register') {
       $('#registerForm').show();
@@ -3612,6 +3633,9 @@
     if (errors.length > 0) {
       e.preventDefault(); // chặn submit
       $('#message').css('color', 'red').html(errors.join('<br>'));
+      if (typeof captcha !== 'undefined') {
+        captcha.reset(); // reset lại captcha nếu có lỗi
+      }
       return;
     }
 
