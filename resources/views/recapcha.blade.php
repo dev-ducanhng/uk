@@ -35,23 +35,23 @@
     
 </body>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var captcha = sliderCaptcha({
-        id: 'captcha',
-        loadingText: 'Loading...',
-        failedText: 'Try again',
-        barText: 'Slide right to fill',
-        repeatIcon: 'fa fa-redo',
-        onSuccess: function() {
-          setTimeout(function() {
-            alert('Your captcha is successfully verified.');
-            captcha.reset();
-          }, 1000);
-        },
-        setSrc: function() {
-          return 'https://picsum.photos/280/155?random=' + Math.random();
-        },
-      });
-    });
+    // document.addEventListener('DOMContentLoaded', function() {
+    //   var captcha = sliderCaptcha({
+    //     id: 'captcha',
+    //     loadingText: 'Loading...',
+    //     failedText: 'Try again',
+    //     barText: 'Slide right to fill',
+    //     repeatIcon: 'fa fa-redo',
+    //     onSuccess: function() {
+    //       setTimeout(function() {
+    //         alert('Your captcha is successfully verified.');
+    //         captcha.reset();
+    //       }, 1000);
+    //     },
+    //     setSrc: function() {
+    //       return 'https://picsum.photos/280/155?random=' + Math.random();
+    //     },
+    //   });
+    // });
   </script>
 </html>

@@ -9,10 +9,10 @@ var captcha = sliderCaptcha({
     barText: 'Trượt mũi tên ghép hình',
     repeatIcon: 'fa fa-redo',
     onSuccess: function() {
-    //   setTimeout(function() {
-    //     alert('Your captcha is successfully verified.');
-    //     captcha.reset();
-    //   }, 1000);
+      // setTimeout(function() {
+      //   alert('Your captcha is successfully verified.');
+      //   captcha.reset();
+      // }, 1000);
     $('#login-form input.recap-success').val('success'); // gán giá trị
     checkLoginFormStatus();
     },
