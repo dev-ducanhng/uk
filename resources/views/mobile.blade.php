@@ -2578,21 +2578,42 @@ Chuyển hết về tài khoản chính
     });
 
     function toggleForm(type) {
-        if (type === 'login') {
-            $('#loginForm').show();
-            $('#registerForm').hide();
-            $('#forgotForm').hide();
+    if (type === 'login') {
+      $('#loginForm').show();
+      $('#registerForm').hide();
+      $('#forgotForm').hide();
+      setTimeout(() => {
+        // Xóa captcha cũ nếu có
+        $('#captcha').empty();
 
-        } else if (type === 'register') {
-            $('#registerForm').show();
-            $('#loginForm').hide();
-            $('#forgotForm').hide();
-        } else if (type == 'forgot') {
-            $('#registerForm').hide();
-            $('#loginForm').hide();
-            $('#forgotForm').show();
-        }
+        // Gọi lại slider captcha
+        captcha = sliderCaptcha({
+          id: 'captcha',
+          loadingText: 'Loading...',
+          failedText: 'Try again',
+          barText: 'Trượt mũi tên ghép hình',
+          repeatIcon: 'fa fa-redo',
+          onSuccess: function() {
+            $('#login-form input.recap-success').val('success');
+            checkLoginFormStatus();
+
+            setTimeout(function() {
+              captcha.reset();
+            }, 3000);
+          }
+        });
+      }, 100);
+
+    } else if (type === 'register') {
+      $('#registerForm').show();
+      $('#loginForm').hide();
+      $('#forgotForm').hide();
+    } else if (type == 'forgot') {
+      $('#registerForm').hide();
+      $('#loginForm').hide();
+      $('#forgotForm').show();
     }
+  }
 
 
     // MainMenu
