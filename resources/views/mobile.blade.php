@@ -1130,7 +1130,7 @@
     <script src="{{ asset('js/base.js') }}"></script>
     <script src="{{ asset('js/menu.js') }}"></script>
     <script src="{{ asset('js/swiper.v7.4.1.js') }}"></script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
     <!-- <script src="js/js.js"></script> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/bundles/app/mobile-home-login.js?v=PCYIe0k4OUG4yUBhuBZvEWSnZWR-BkV42MerFnUO9sw1"></script>

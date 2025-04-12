@@ -61,7 +61,7 @@
   <link href="{{ asset('css/881.469709fe.chunk.css') }}" rel="stylesheet">
   <link href="{{ asset('css/recapcha.css') }}" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
 
   <style>
     .swal2-popup.swal2-toast {
