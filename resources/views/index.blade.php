@@ -50,6 +50,8 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script defer="defer" src="/static/js/main.9abb08d2.js"></script>
   <script src="{{ asset('js/main.9abb08d2.js') }}"></script>
+  <script src="{{ asset('js/recapcha.js') }}" async defer></script>
+
   <!-- <script defer="defer" src="/static/js/881.eb58a5b3.chunk.js"></script> -->
   <!-- <link href="/static/css/main.be51b521.css" rel="stylesheet" /> -->
   <link href="{{ asset('css/main.css') }}" rel="stylesheet">
@@ -57,6 +59,8 @@
   <link href="{{ asset('css/629.67ebee62.chunk.css') }}" rel="stylesheet">
   <link href="{{ asset('css/385ebc265cfchunk.css') }}" rel="stylesheet">
   <link href="{{ asset('css/881.469709fe.chunk.css') }}" rel="stylesheet">
+  <link href="{{ asset('css/recapcha.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   <style>
@@ -1686,7 +1690,7 @@
         </div>
       </div>
       <div id="MainMenu">
-        
+
         <div
           class="DefaultLayout_menuArea__IVTrv DefaultLayout_ng-scope__Sw0v5">
           <div class="DefaultLayout_mainMenu__cDqOR">
@@ -1713,9 +1717,9 @@
                           id="NBBSport_hot_txt_maintain">
                           <p class="DefaultLayout_icon_arrowB__-2KBP"></p>
                         </div>
-                        
+
                         <div class="DefaultLayout_Darkened2__+D8Af">
-                          
+
                         </div>
                         <div class="DefaultLayout_listLogo__Y5rG1">
                           <div class="DefaultLayout_img_logo__M66hx">
@@ -3030,25 +3034,24 @@
       <div class="DefaultLayout_btmMenu__uab-k">
         <div class="DefaultLayout_btmMenuM__WZrr1">
           <ul>
-            <li><a >Giới thiệu</a></li>
+            <li><a>Giới thiệu</a></li>
             <li>|</li>
             <li>
-              <a
-               >Trợ giúp</a>
+              <a>Trợ giúp</a>
             </li>
             <li>|</li>
             <li><a open-window="/Home/GameTerms">Điều khoản</a></li>
             <li>|</li>
             <li>
               <a
-                
+
                 target="_blank"
                 style="color: rgb(255, 222, 0)">Hỗ trợ</a>
             </li>
             <li>|</li>
             <li>
               <a
-                
+
                 style="color: rgb(255, 222, 0)">Link dự bị</a>
             </li>
             <li>|</li>
@@ -3334,85 +3337,94 @@
 
       <div id="loginForm">
         <h3 style="">Đăng nhập hội viên</h3>
-      <form id="login-form" action="{{ route('login') }}" method="POST">
-      @csrf
-      <div class="label">
-        <label for="">Tài khoản</label>
-        <input type="text" name="name" placeholder="Tài khoản"><br>
-      </div>
-      <div class="label">
-        <label for="">Mật khẩu</label>
-        <input type="password" name="password" placeholder="6 ~ 10 ký tự chữ và số">
-      </div>
+        <form id="login-form" action="{{ route('login') }}" method="POST">
+          @csrf
+          <div class="label">
+            <label for="">Tài khoản</label>
+            <input type="text" name="name" placeholder="Tài khoản"><br>
+          </div>
+          <div class="label">
+            <label for="">Mật khẩu</label>
+            <input type="password" name="password" placeholder="6 ~ 10 ký tự chữ và số">
+          </div>
 
-      <span class="toggle-password" onclick="togglePassword()" id="toggleIcon"></span>
+          <span class="toggle-password" onclick="togglePassword()" id="toggleIcon"></span>
 
-        <!-- Google reCAPTCHA -->
-        <div id="captcha"></div>
+          <!-- Google reCAPTCHA -->
+          <div class="container-fluid">
+            <div class="row justify-content-center">
+              <div class="col-md-4 mb-5">
+                <div class="slidercaptcha card">
+                  <div class="card-header">
+                    <span></span>
+                  </div>
+                  <div class="card-body">
+                    <div id="captcha"></div>
+                  </div>
+                </div>
+              </div>
 
-          <input type="hidden" name="lot_number">
-          <input type="hidden" name="captcha_output">
-          <input type="hidden" name="pass_token">
-          <input type="hidden" name="gen_time">
-
-<!-- g-recaptcha -->
+            </div>
+          </div>
+          <input type="hidden" class="recap-success" name="recap-success">
+          <!-- g-recaptcha -->
 
           <br>
           <p onclick="toggleForm('forgot')" style="cursor:pointer;">Quên mật khẩu</p>
           <button id="login-button" type="submit" disabled style="background-color: #aaa;">Đăng nhập</button>
 
         </form>
-          <p onclick="toggleForm('register')" style="cursor:pointer;">Chưa có tài khoản? Đăng ký</p>
-          <p id="message"></p>
+        <p onclick="toggleForm('register')" style="cursor:pointer;">Chưa có tài khoản? Đăng ký</p>
+        <p id="message"></p>
       </div>
 
       <div id="registerForm" style="display:none; padding: 20px;">
-          <h3 style="color: #5aaaf3; text-align: center; margin-bottom: 20px;">ĐĂNG KÝ HỘI VIÊN</h3>
+        <h3 style="color: #5aaaf3; text-align: center; margin-bottom: 20px;">ĐĂNG KÝ HỘI VIÊN</h3>
         <form id="register-form" style="display: flex; flex-direction: column; gap: 16px;">
 
-    <div class="label">
-      <label for="" style="">Tài khoản</label>
-      <input type="text" name="name" placeholder="4 ~ 10 ký tự chữ và số" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
-    </div>
+          <div class="label">
+            <label for="" style="">Tài khoản</label>
+            <input type="text" name="name" placeholder="4 ~ 10 ký tự chữ và số" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
+          </div>
 
-    <div class="label">
-      <label for="" style="">Biệt danh</label>
-      <input type="text" name="nickname" placeholder="Nhập tối đa 8 ký tự" pattern="^.{1,8}$"  style="padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
-    </div>
-    <div class="label">
-      <label for="" style="">Số điện thoại</label>
-      <input type="string" name="phone" pattern="^0\d{8,9}$" placeholder="SĐT" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
-    </div> 
-    <div class="label">
-      <label for="" style="">Mật khẩu</label>
-      <input type="password" name="password" placeholder="6 ~ 10 ký tự chữ và số" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
-    </div>
-                
-    <!-- Checkboxes -->
-    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; font-size: 14px; color: #333;">
-      <label style="display: flex; align-items: flex-start; gap: 8px;">
-        <input type="checkbox" name="promotion_sms" value="1" style="margin-top: 3px;" checked>
-        <span>Nhận thông tin khuyến mãi qua tin nhắn điện thoại</span>
-      </label>
+          <div class="label">
+            <label for="" style="">Biệt danh</label>
+            <input type="text" name="nickname" placeholder="Nhập tối đa 8 ký tự" pattern="^.{1,8}$" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
+          </div>
+          <div class="label">
+            <label for="" style="">Số điện thoại</label>
+            <input type="string" name="phone" pattern="^0\d{8,9}$" placeholder="SĐT" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
+          </div>
+          <div class="label">
+            <label for="" style="">Mật khẩu</label>
+            <input type="password" name="password" placeholder="6 ~ 10 ký tự chữ và số" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px;" required>
+          </div>
 
-      <label style="display: flex; align-items: flex-start; gap: 8px;">
-        <input type="checkbox" name="agree_terms" id="agree_terms" required style="margin-top: 3px;" checked>
-        <span>
-          Tôi đã 18 tuổi, đồng thời đã đọc và đồng ý quy tắc cá cược 
-          <a href="https://ku8338.net/Home/GameTerms" target="_blank" style="color: #5aaaf3; text-decoration: underline;">Điều khoản</a>
-        </span>
-      </label>
-    </div>
+          <!-- Checkboxes -->
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; font-size: 14px; color: #333;">
+            <label style="display: flex; align-items: flex-start; gap: 8px;">
+              <input type="checkbox" name="promotion_sms" value="1" style="margin-top: 3px;" checked>
+              <span>Nhận thông tin khuyến mãi qua tin nhắn điện thoại</span>
+            </label>
 
-    <button type="submit" style="padding: 10px; background-color: #5aaaf3; border: none; color: white; border-radius: 6px; cursor: pointer;">
-      Đăng ký
-    </button>
-    </form>
+            <label style="display: flex; align-items: flex-start; gap: 8px;">
+              <input type="checkbox" name="agree_terms" id="agree_terms" required style="margin-top: 3px;" checked>
+              <span>
+                Tôi đã 18 tuổi, đồng thời đã đọc và đồng ý quy tắc cá cược
+                <a href="https://ku8338.net/Home/GameTerms" target="_blank" style="color: #5aaaf3; text-decoration: underline;">Điều khoản</a>
+              </span>
+            </label>
+          </div>
 
-      <p onclick="toggleForm('login')" style="cursor:pointer; text-align: center; margin-top: 15px; color: #5aaaf3;">
+          <button type="submit" style="padding: 10px; background-color: #5aaaf3; border: none; color: white; border-radius: 6px; cursor: pointer;">
+            Đăng ký
+          </button>
+        </form>
+
+        <p onclick="toggleForm('login')" style="cursor:pointer; text-align: center; margin-top: 15px; color: #5aaaf3;">
           Đã có tài khoản? Đăng nhập
-      </p>
-    </div>
+        </p>
+      </div>
       <div id="forgotForm">
         <h3>Quên mật khẩu</h3>
         <hr>
@@ -3442,7 +3454,7 @@
       <div id="message" style="margin-top:10px; color:green;"></div>
     </div>
   </div>
-  
+
   <div id="popup" class="popup">
     <div class="popup-content">
       <h2 class="tn"> Tin nhắn</h2>
@@ -3452,15 +3464,15 @@
     </div>
   </div>
   @if(Auth::check())
-    <input style="display: none;" class="check_link" type="text" value="{{route('link301')}}">
-@else
-    <input style="display: none;" class="check_link" type="text" value="abc">
-@endif
-@if(Auth::check())
-    <input style="display: none;" class="check_link_topup" type="text" value="{{route('linkTopup')}}">
-@else
-    <input style="display: none;" class="check_link_topup" type="text" value="abc">
-@endif
+  <input style="display: none;" class="check_link" type="text" value="{{route('link301')}}">
+  @else
+  <input style="display: none;" class="check_link" type="text" value="abc">
+  @endif
+  @if(Auth::check())
+  <input style="display: none;" class="check_link_topup" type="text" value="{{route('linkTopup')}}">
+  @else
+  <input style="display: none;" class="check_link_topup" type="text" value="abc">
+  @endif
 
   <script
     defer=""
@@ -3469,14 +3481,14 @@
     data-cf-beacon='{"rayId":"92a1aef909415fb3","serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.3.0","token":"1cfe299bd5f94561bdc9c3e1b34606e6"}'
     crossorigin="anonymous"></script>
 
-    @if(session('show_phone_prompt'))
-    <script>
-    $(document).ready(function () {
-        showPhonePrompt(); // Gọi hàm hiện modal
+  @if(session('show_phone_prompt'))
+  <script>
+    $(document).ready(function() {
+      showPhonePrompt(); // Gọi hàm hiện modal
     });
 
     function showPhonePrompt() {
-        const html = `
+      const html = `
             <div id="phonePromptModal" style="position: fixed; top: 30%; left: 35%; background: #fff; border: 1px solid #ccc; padding: 20px; z-index: 9999;">
               <h4>Vui lòng xác nhận lại số điện thoại</h4>
               <input type="text" id="user-phone" placeholder="Nhập số điện thoại (tùy chọn)">
@@ -3485,32 +3497,32 @@
               <button onclick="dismissPhonePrompt()">Bỏ qua</button>
               <p id="phone-message"></p>
             </div>`;
-        $('body').append(html);
+      $('body').append(html);
     }
 
     function submitPhone() {
-        const phone = $('#user-phone').val().trim();
+      const phone = $('#user-phone').val().trim();
 
-        $.post('/update-phone', {
-            phone: phone,
-            _token: '{{ csrf_token() }}'
+      $.post('/update-phone', {
+          phone: phone,
+          _token: '{{ csrf_token() }}'
         })
-        .done(function () {
-            $('#phone-message').css('color', 'green').text('Cập nhật thành công!');
-            setTimeout(() => location.reload(), 1000);
+        .done(function() {
+          $('#phone-message').css('color', 'green').text('Cập nhật thành công!');
+          setTimeout(() => location.reload(), 1000);
         })
-        .fail(function () {
-            $('#phone-message').css('color', 'red').text('Cập nhật thất bại');
+        .fail(function() {
+          $('#phone-message').css('color', 'red').text('Cập nhật thất bại');
         });
     }
 
     function dismissPhonePrompt() {
-        $.post('/dismiss-phone-prompt', {
-            _token: '{{ csrf_token() }}'
-        }).always(() => location.reload());
+      $.post('/dismiss-phone-prompt', {
+        _token: '{{ csrf_token() }}'
+      }).always(() => location.reload());
     }
-</script>
-@endif
+  </script>
+  @endif
 
 
 </body>
@@ -3538,26 +3550,26 @@
       $('#forgotForm').show();
     }
   }
-  
+
 
   // MainMenu
   $('#MainMenu ul li ,#indexMenu, .slider_dev , .btn_personalMsg, .btn_member').click(function() {
-      if($('.check_link').val() === 'abc'){
-        toggleForm('login');
-        $('#authModal').show();
-      }else{
-        window.location.href = $('.check_link').val(); // Đổi thành URL bạn muốn chuyển tới
-      }
-    
+    if ($('.check_link').val() === 'abc') {
+      toggleForm('login');
+      $('#authModal').show();
+    } else {
+      window.location.href = $('.check_link').val(); // Đổi thành URL bạn muốn chuyển tới
+    }
+
   });
   $('.topup').click(function() {
-      if($('.check_link').val() === 'abc'){
-        toggleForm('login');
-        $('#authModal').show();
-      }else{
-        window.location.href = $('.check_link_topup').val(); // Đổi thành URL bạn muốn chuyển tới
-      }
-    
+    if ($('.check_link').val() === 'abc') {
+      toggleForm('login');
+      $('#authModal').show();
+    } else {
+      window.location.href = $('.check_link_topup').val(); // Đổi thành URL bạn muốn chuyển tới
+    }
+
   });
   // check_link_topup
   // topup
@@ -3576,41 +3588,35 @@
 
 
   // Bật reCAPTCHA khi checkbox được tick
-  $('#show-captcha').change(function () {
-  if ($(this).is(':checked')) {
-    $('#captcha').show(); 
-  } else {
-    $('#captcha').hide();
-    // Không cần reset như grecaptcha.reset(), vì GeeTest không hỗ trợ kiểu này
-  }
-});
+  //   $('#show-captcha').change(function () {
+  //   if ($(this).is(':checked')) {
+  //     $('#captcha').show(); 
+  //   } else {
+  //     $('#captcha').hide();
+  //     // Không cần reset như grecaptcha.reset(), vì GeeTest không hỗ trợ kiểu này
+  //   }
+  // });
 
-$('#login-form').submit(function (e) {
-  const name = $('#login-form input[name="name"]').val().trim();
-  const password = $('#login-form input[name="password"]').val().trim();
+  $('#login-form').submit(function(e) {
+    const name = $('#login-form input[name="name"]').val().trim();
+    const password = $('#login-form input[name="password"]').val().trim();
+    const recapSuccess = $('#login-form input[name="recap-success"]').val().trim();
+    // recap-success
 
-  // Lấy dữ liệu từ các input ẩn mà GeeTest đã đổ vào
-  const lotNumber = $('input[name="lot_number"]').val();
-  const captchaOutput = $('input[name="captcha_output"]').val();
-  const passToken = $('input[name="pass_token"]').val();
-  const genTime = $('input[name="gen_time"]').val();
+    let errors = [];
 
-  let errors = [];
+    if (!name) errors.push('Vui lòng nhập tài khoản.');
+    if (!password) errors.push('Vui lòng nhập mật khẩu.');
+    if (!recapSuccess) errors.push('Vui lòng nhập recapcha.');
 
-  if (!name) errors.push('Vui lòng nhập tài khoản.');
-  if (!password) errors.push('Vui lòng nhập mật khẩu.');
-  if (!lotNumber || !captchaOutput || !passToken || !genTime) {
-    errors.push('Vui lòng hoàn thành CAPTCHA.');
-  }
+    if (errors.length > 0) {
+      e.preventDefault(); // chặn submit
+      $('#message').css('color', 'red').html(errors.join('<br>'));
+      return;
+    }
 
-  if (errors.length > 0) {
-    e.preventDefault(); // chặn submit
-    $('#message').css('color', 'red').html(errors.join('<br>'));
-    return;
-  }
-
-  // Nếu mọi thứ ok, để form submit bình thường
-});
+    // Nếu mọi thứ ok, để form submit bình thường
+  });
 
   $('#register-form').submit(function(e) {
     e.preventDefault();
@@ -3645,7 +3651,7 @@ $('#login-form').submit(function (e) {
       popup.style.display = 'none';
       $('.memberPMenuT').removeAttr('style');
       $('.memberPMenuB').removeAttr('style');
-      
+
     });
     let currentIndex = 0;
     const slides = $('.slider_dev li');
@@ -3701,12 +3707,8 @@ $('#login-form').submit(function (e) {
   function checkLoginFormStatus() {
     const name = $('#login-form input[name="name"]').val().trim();
     const password = $('#login-form input[name="password"]').val().trim();
-    const lot_number = $('input[name="lot_number"]').val();
-    const captcha_output = $('input[name="captcha_output"]').val();
-    const pass_token = $('input[name="pass_token"]').val();
-    const gen_time = $('input[name="gen_time"]').val();
-
-    const isValid = name && password && lot_number && captcha_output && pass_token && gen_time;
+    const recapSuccess = $('#login-form input[name="recap-success"]').val().trim();
+    const isValid = name && password && recapSuccess;
 
     if (isValid) {
       $('#login-button').prop('disabled', false).css('background-color', '#32abff');
@@ -3729,29 +3731,6 @@ $('#login-form').submit(function (e) {
   }
 </script>
 
-<script src="https://static.geetest.com/v4/gt4.js"></script>
-<script>
-    fetch('/captcha/init')
-        .then(res => res.json())
-        .then(data => {
-            initGeetest4({
-                captchaId: data.captcha_id,
-                product: 'float',
-                challenge: data.challenge,
-            }, function (captcha) {
-                captcha.appendTo("#captcha");
-                captcha.onReady(() => {
-                    console.log("GeeTest ready");
-                });
-                captcha.onSuccess(() => {
-                    const result = captcha.getValidate();
-                    document.querySelector('input[name=lot_number]').value = result.lot_number;
-                    document.querySelector('input[name=captcha_output]').value = result.captcha_output;
-                    document.querySelector('input[name=pass_token]').value = result.pass_token;
-                    document.querySelector('input[name=gen_time]').value = result.gen_time;
-                    checkLoginFormStatus();
-                });
-            });
-        });
-</script>
+
+
 </html>

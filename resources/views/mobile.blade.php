@@ -63,6 +63,10 @@
     <link href="{{ asset('css/swiper.css') }}" rel="stylesheet">
     <link href="{{ asset('css/mobile_join.css') }}" rel="stylesheet">
     <link href="{{ asset('css/form.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/recapcha.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <script src="{{ asset('js/recapcha.js') }}" async defer></script>
     <script>
         // var isPageHide = false;
         // window.addEventListener("pageshow", function (e) {
@@ -725,7 +729,7 @@
                     word-break: normal;
                 }
             </style>
-            <a href="" class="footer_list btn_footer_gift ">
+            <a class="footer_list btn_footer_gift ">
                 <h5>Ưu Đãi</h5>
             </a>
             <a href="{{route('service')}}" class="footer_list btn_footer_serv">
@@ -2402,12 +2406,22 @@ Chuyển hết về tài khoản chính
           </span>
           <p onclick="toggleForm('forgot')" style="cursor:pointer; text-align: right; color: #337caa; font-size: 0.9em;">Quên mật khẩu?</p>
            <!-- Google reCAPTCHA -->
-           <div id="captcha"></div>
+           <div class="container-fluid">
+            <div class="row justify-content-center">
+              <div class="col-md-4 mb-5">
+                <div class="slidercaptcha card">
+                  <div class="card-header">
+                    <span></span>
+                  </div>
+                  <div class="card-body">
+                    <div id="captcha"></div>
+                  </div>
+                </div>
+              </div>
 
-        <input type="hidden" name="lot_number">
-        <input type="hidden" name="captcha_output">
-        <input type="hidden" name="pass_token">
-        <input type="hidden" name="gen_time">
+            </div>
+          </div>
+          <input type="hidden" class="recap-success" name="recap-success">
          
           <br>
           
@@ -2582,7 +2596,7 @@ Chuyển hết về tài khoản chính
 
 
     // MainMenu
-    $('.GameList_R').click(function() {
+    $('.GameList_R , .btn_footer_gift').click(function() {
         if ($('.check_link').val() === 'abc') {
             toggleForm('login');
             $('#authModal').show();
@@ -2636,32 +2650,26 @@ $('#show-captcha').change(function () {
   }
 });
 
-$('#login-form').submit(function (e) {
-  const name = $('#login-form input[name="name"]').val().trim();
-  const password = $('#login-form input[name="password"]').val().trim();
+$('#login-form').submit(function(e) {
+    const name = $('#login-form input[name="name"]').val().trim();
+    const password = $('#login-form input[name="password"]').val().trim();
+    const recapSuccess = $('#login-form input[name="recap-success"]').val().trim();
+    // recap-success
 
-  // Lấy dữ liệu từ các input ẩn mà GeeTest đã đổ vào
-  const lotNumber = $('input[name="lot_number"]').val();
-  const captchaOutput = $('input[name="captcha_output"]').val();
-  const passToken = $('input[name="pass_token"]').val();
-  const genTime = $('input[name="gen_time"]').val();
+    let errors = [];
 
-  let errors = [];
+    if (!name) errors.push('Vui lòng nhập tài khoản.');
+    if (!password) errors.push('Vui lòng nhập mật khẩu.');
+    if (!recapSuccess) errors.push('Vui lòng nhập recapcha.');
 
-  if (!name) errors.push('Vui lòng nhập tài khoản.');
-  if (!password) errors.push('Vui lòng nhập mật khẩu.');
-  if (!lotNumber || !captchaOutput || !passToken || !genTime) {
-    errors.push('Vui lòng hoàn thành CAPTCHA.');
-  }
+    if (errors.length > 0) {
+      e.preventDefault(); // chặn submit
+      $('#message').css('color', 'red').html(errors.join('<br>'));
+      return;
+    }
 
-  if (errors.length > 0) {
-    e.preventDefault(); // chặn submit
-    $('#message').css('color', 'red').html(errors.join('<br>'));
-    return;
-  }
-
-  // Nếu mọi thứ ok, để form submit bình thường
-});
+    // Nếu mọi thứ ok, để form submit bình thường
+  });
 
     $('#register-form').submit(function(e) {
         e.preventDefault();
@@ -2743,12 +2751,8 @@ $('#login-form').submit(function (e) {
   function checkLoginFormStatus() {
     const name = $('#login-form input[name="name"]').val().trim();
     const password = $('#login-form input[name="password"]').val().trim();
-    const lot_number = $('input[name="lot_number"]').val();
-    const captcha_output = $('input[name="captcha_output"]').val();
-    const pass_token = $('input[name="pass_token"]').val();
-    const gen_time = $('input[name="gen_time"]').val();
-
-    const isValid = name && password && lot_number && captcha_output && pass_token && gen_time;
+    const recapSuccess = $('#login-form input[name="recap-success"]').val().trim();
+    const isValid = name && password && recapSuccess;
 
     if (isValid) {
       $('#login-button').prop('disabled', false).css('background-color', '#32abff');
@@ -2771,29 +2775,5 @@ $('#login-form').submit(function (e) {
   }
 </script>
 
-<script src="https://static.geetest.com/v4/gt4.js"></script>
-<script>
-    fetch('/captcha/init')
-        .then(res => res.json())
-        .then(data => {
-            initGeetest4({
-                captchaId: data.captcha_id,
-                product: 'float',
-                challenge: data.challenge,
-            }, function (captcha) {
-                captcha.appendTo("#captcha");
-                captcha.onReady(() => {
-                    console.log("GeeTest ready");
-                });
-                captcha.onSuccess(() => {
-                    const result = captcha.getValidate();
-                    document.querySelector('input[name=lot_number]').value = result.lot_number;
-                    document.querySelector('input[name=captcha_output]').value = result.captcha_output;
-                    document.querySelector('input[name=pass_token]').value = result.pass_token;
-                    document.querySelector('input[name=gen_time]').value = result.gen_time;
-                    checkLoginFormStatus();
-                });
-            });
-        });
-</script>
+
 </html>

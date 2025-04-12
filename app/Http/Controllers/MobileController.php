@@ -26,30 +26,8 @@ class MobileController extends Controller
     $request->validate([
         'name' => 'required|string',
         'password' => 'required|string',
-        'lot_number' => 'required',
-        'captcha_output' => 'required',
-        'pass_token' => 'required',
-        'gen_time' => 'required',
     ]);
     
-//     $geetestPayload = [
-//         'lot_number' => $request->lot_number,
-//         'captcha_output' => $request->captcha_output,
-//         'pass_token' => $request->pass_token,
-//         'gen_time' => $request->gen_time,
-//         'captcha_id' => env('GEETEST_CAPTCHA_ID'),
-//         'api_key' => env('GEETEST_API_KEY'),
-//     ];
-
-//     $response = Http::asJson()->post('https://gcaptcha4.geetest.com/validate', $geetestPayload);
-
-// $result = $response->json();
-
-// if (!($result['result'] ?? false)) {
-//     return back()->withErrors(['captcha' => 'Xác minh CAPTCHA thất bại']);
-// }
-
-    // Check if user exists
     $user = \App\Models\User::where('name', $request->name)->first();
 
     if (!$user) {
